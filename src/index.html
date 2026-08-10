@@ -7,57 +7,164 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="container">
-    <header class="header">
-      <h1>🎮 Minecraft 啟動器</h1>
-      <p class="subtitle">支持 Java 和 Bedrock 版本</p>
-    </header>
-
-    <main class="main">
-      <div class="section">
-        <h2>版本類型</h2>
-        <div class="version-type-selector">
-          <button class="type-button active" data-type="java">☕ Java 版本</button>
-          <button class="type-button" data-type="bedrock">🏘️ Bedrock 版本</button>
+  <div class="app-container">
+    <!-- 側邊欄 -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="user-profile">
+          <div class="avatar">👤</div>
+          <div class="user-info">
+            <div class="username">遊客</div>
+            <div class="status">未登入</div>
+          </div>
         </div>
       </div>
 
-      <div class="section">
-        <h2>版本管理</h2>
-        <div class="version-section">
-          <div class="subsection">
-            <h3>已安裝版本</h3>
-            <div id="installedVersions" class="version-list">
-              <p class="loading">載入中...</p>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="play">
+          <span class="icon">🎮</span>
+          <span class="label">遊戲</span>
+        </button>
+        <button class="nav-item" data-tab="installations">
+          <span class="icon">📦</span>
+          <span class="label">安裝</span>
+        </button>
+        <button class="nav-item" data-tab="mods">
+          <span class="icon">🔧</span>
+          <span class="label">模組</span>
+        </button>
+        <button class="nav-item" data-tab="settings">
+          <span class="icon">⚙️</span>
+          <span class="label">設定</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="version-info">
+          v1.0.0
+        </div>
+      </div>
+    </aside>
+
+    <!-- 主要內容區域 -->
+    <main class="main-content">
+      <!-- 頂部標籤欄 -->
+      <div class="tab-bar">
+        <button class="tab-button active" data-version="java">
+          ☕ Java 版本
+        </button>
+        <button class="tab-button" data-version="bedrock">
+          🏘️ Bedrock 版本
+        </button>
+      </div>
+
+      <!-- Play 頁面 -->
+      <section class="tab-content active" id="play-tab">
+        <div class="play-section">
+          <div class="featured-game">
+            <div class="game-header">
+              <h1>Minecraft</h1>
+              <p class="game-subtitle" id="gameSubtitle">Java & Bedrock</p>
+            </div>
+            <div class="game-image" id="gameImage">
+              <span class="emoji">🎮</span>
+            </div>
+            <div class="play-info">
+              <div class="version-status" id="versionStatus">
+                <p class="loading">載入中...</p>
+              </div>
+              <div class="button-group">
+                <button class="btn btn-primary" id="playBtn" disabled>
+                  準備啟動
+                </button>
+                <button class="btn btn-secondary" id="settingsBtn">
+                  ⚙️ 選項
+                </button>
+              </div>
             </div>
           </div>
-          
-          <div class="subsection">
-            <h3>可用版本</h3>
-            <div id="availableVersions" class="version-list">
-              <p class="loading">載入中...</p>
+
+          <div class="progress-section" id="progressSection" style="display:none;">
+            <div class="progress-item">
+              <div class="progress-label" id="progressLabel">下載中...</div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+              </div>
+              <div class="progress-text" id="progressText">0%</div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div class="section">
-        <h2>下載管理</h2>
-        <div class="download-section">
-          <div id="downloadsList" class="downloads-list">
-            <p class="empty">沒有正在進行的下載</p>
+      <!-- Installations 頁面 -->
+      <section class="tab-content" id="installations-tab">
+        <div class="installations-section">
+          <div class="section-header">
+            <h2>版本管理</h2>
+          </div>
+
+          <div class="versions-grid">
+            <div class="versions-column">
+              <h3 class="column-title">已安裝</h3>
+              <div class="versions-list" id="installedVersionsList">
+                <p class="empty-state">沒有已安裝的版本</p>
+              </div>
+            </div>
+
+            <div class="versions-column">
+              <h3 class="column-title">可用版本</h3>
+              <div class="versions-list" id="availableVersionsList">
+                <p class="empty-state">載入中...</p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div class="section">
-        <h2>模組管理</h2>
+      <!-- Mods 頁面 -->
+      <section class="tab-content" id="mods-tab">
         <div class="mods-section">
-          <input type="text" id="modUrl" placeholder="輸入模組 URL">
-          <button id="addModBtn" class="button">新增模組</button>
-          <div id="modsList" class="mods-list"></div>
+          <div class="section-header">
+            <h2>模組管理（Java 版本）</h2>
+          </div>
+
+          <div class="mods-control">
+            <div class="input-group">
+              <input type="text" id="modUrl" placeholder="輸入模組 URL..." class="input-field">
+              <button id="addModBtn" class="btn btn-primary">新增</button>
+            </div>
+          </div>
+
+          <div class="mods-list" id="modsList">
+            <p class="empty-state">沒有新增模組</p>
+          </div>
         </div>
-      </div>
+      </section>
+
+      <!-- Settings 頁面 -->
+      <section class="tab-content" id="settings-tab">
+        <div class="settings-section">
+          <div class="section-header">
+            <h2>設定</h2>
+          </div>
+
+          <div class="settings-group">
+            <h3>系統設定</h3>
+            <div class="setting-item">
+              <label>Java 內存分配 (MB)</label>
+              <input type="number" id="javaMemory" class="input-field" value="2048" min="512" max="16384">
+            </div>
+            <div class="setting-item">
+              <label>語言</label>
+              <select class="input-field" id="language">
+                <option value="zh-TW">繁體中文</option>
+                <option value="zh-CN">簡體中文</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 

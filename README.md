@@ -129,15 +129,22 @@ MIT
 
 ## 常見問題
 
-**Q: 如何更新遊戲版本？**
-A: 刪除舊版本後重新下載新版本
+**Q: 如何在 Java 和 Bedrock 版本之間切換？**
+A: 使用頂部的版本類型按鈕快速切換
 
 **Q: Mods 在哪裡？**
-A: 所有文件存儲在 `minecraft-data` 目錄中
+A: 所有文件存儲在 `minecraft-data` 目錄中，Java Mods 在 `java/mods/` 中
 
 **Q: 支持哪些平台？**
-A: Windows、macOS、Linux
+A: 
+- Java: Windows、macOS、Linux
+- Bedrock: Windows、macOS（Linux 不支持）
 
-## 貢獻
+**Q: 需要管理員權限嗎？**
+A: 不需要，所有下載都在用戶目錄進行
 
-歡迎提交 Issue 和 Pull Request！
+**Q: 如何選擇 Java 版本的內存？**
+A: 編輯 `minecraftManager.js` 中的 `-Xmx` 和 `-Xms` 參數
+
+**Q: Bedrock 版本可以使用 Mods 嗎？**
+A: Bedrock 官方不支持 Mods，但支持 Marketplace 內容和行為包
