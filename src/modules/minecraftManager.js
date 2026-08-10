@@ -1,12 +1,17 @@
 import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import { FileManager } from './fileManager.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export class MinecraftManager {
   constructor() {
     this.fileManager = new FileManager();
     this.versions = new Map();
+    this.platformType = null;
     this.initialize();
   }
 
@@ -15,30 +20,63 @@ export class MinecraftManager {
     await this.loadInstalledVersions();
   }
 
-  async getAvailableVersions() {
-    // 這裡應該從官方 Minecraft API 獲取版本列表
-    // 目前返回示例數據
-    return [
-      { id: '1.20.1', name: 'Minecraft 1.20.1', size: 524288000 },
-      { id: '1.19.2', name: 'Minecraft 1.19.2', size: 512000000 },
-      { id: '1.18.2', name: 'Minecraft 1.18.2', size: 500000000 }
-    ];
+  async getAvailableVersions(type = 'java') {
+    // 根據版本類型返回可用版本
+    if (type === 'java') {
+      return [
+        { id: 'java-1.20.1', name: 'Java 1.20.1', size: 524288000, type: 'java', releaseDate: '2023-12-07' },
+        { id: 'java-1.19.2', name: 'Java 1.19.2', size: 512000000, type: 'java', releaseDate: '2022-08-05' },
+        { id: 'java-1.18.2', name: 'Java 1.18.2', size: 500000000, type: 'java', releaseDate: '2022-02-28' }
+      ];
+    } else if (type === 'bedrock') {
+      return [
+        { id: 'bedrock-1.20.1', name: 'Bedrock 1.20.1', size: 1073741824, type: 'bedrock', releaseDate: '2023-12-07' },
+        { id: 'bedrock-1.19.0', name: 'Bedrock 1.19.0', size: 1048576000, type: 'bedrock', releaseDate: '2023-06-06' },
+        { id: 'bedrock-1.18.0', name: 'Bedrock 1.18.0', size: 1024000000, type: 'bedrock', releaseDate: '2022-09-28' }
+      ];
+    }
+    return [];
   }
 
   async loadInstalledVersions() {
     try {
-      const versionDir = this.fileManager.getVersionPath('');
-      const versions = await this.fileManager.listFiles(versionDir.replace(/\/$/, ''));
+      const javaDir = this.fileManager.getVersionPath('java');
+      const bedrockDir = this.fileManager.getVersionPath('bedrock');
       
-      for (const version of versions) {
-        const versionPath = this.fileManager.getVersionPath(version);
-        const size = await this.getDirectorySize(versionPath);
-        this.versions.set(version, {
-          id: version,
-          name: `Minecraft ${version}`,
-          size: size,
-          installedAt: new Date().toISOString()
-        });
+      // 載入 Java 版本
+      try {
+        const javaVersions = await this.fileManager.listFiles(javaDir.replace(/\/$/, ''));
+        for (const version of javaVersions) {
+          const versionPath = path.join(javaDir, version);
+          const size = await this.getDirectorySize(versionPath);
+          this.versions.set(`java-${version}`, {
+            id: `java-${version}`,
+            name: `Java ${version}`,
+            size: size,
+            type: 'java',
+            installedAt: new Date().toISOString()
+          });
+        }
+      } catch (error) {
+        console.log('Java 版本目錄不存在或為空');
+      }
+      
+      // 載入 Bedrock 版本
+      try {
+        const bedrockVersions = await this.fileManager.listFiles(bedrockDir.replace(/\/$/, ''));
+        for (const version of bedrockVersions) {
+          const versionPath = path.join(bedrockDir, version);
+          const size = await this.getDirectorySize(versionPath);
+          this.versions.set(`bedrock-${version}`, {
+            id: `bedrock-${version}`,
+            name: `Bedrock ${version}`,
+            size: size,
+            type: 'bedrock',
+            installedAt: new Date().toISOString()
+          });
+        }
+      } catch (error) {
+        console.log('Bedrock 版本目錄不存在或為空');
       }
     } catch (error) {
       console.error('載入已安裝版本失敗:', error);
@@ -47,6 +85,10 @@ export class MinecraftManager {
 
   async getInstalledVersions() {
     return Array.from(this.versions.values());
+  }
+
+  async getInstalledVersionsByType(type) {
+    return Array.from(this.versions.values()).filter(v => v.type === type);
   }
 
   async getDirectorySize(directory) {
