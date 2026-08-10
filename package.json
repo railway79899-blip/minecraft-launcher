@@ -1,0 +1,24 @@
+{
+  "name": "minecraft-launcher",
+  "version": "1.0.0",
+  "description": "Minecraft 無管理員權限桌面啟動器",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "pack": "electron-builder --dir"
+  },
+  "keywords": ["minecraft", "launcher"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^latest",
+    "electron-builder": "^latest"
+  },
+  "dependencies": {
+    "axios": "^latest",
+    "uuid": "^latest"
+  }
+}

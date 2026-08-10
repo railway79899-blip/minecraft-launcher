@@ -1,0 +1,13 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+downloads/
+minecraft-data/
+.env
+.env.local
+*.swp
+*.swo
+*~
+.vscode/
+.idea/

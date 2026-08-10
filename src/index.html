@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft 啟動器</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>🎮 Minecraft 啟動器</h1>
+      <p class="subtitle">無管理員權限版本</p>
+    </header>
+
+    <main class="main">
+      <div class="section">
+        <h2>版本管理</h2>
+        <div class="version-section">
+          <div class="subsection">
+            <h3>已安裝版本</h3>
+            <div id="installedVersions" class="version-list">
+              <p class="loading">載入中...</p>
+            </div>
+          </div>
+          
+          <div class="subsection">
+            <h3>可用版本</h3>
+            <div id="availableVersions" class="version-list">
+              <p class="loading">載入中...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>下載管理</h2>
+        <div class="download-section">
+          <div id="downloadsList" class="downloads-list">
+            <p class="empty">沒有正在進行的下載</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>模組管理</h2>
+        <div class="mods-section">
+          <input type="text" id="modUrl" placeholder="輸入模組 URL">
+          <button id="addModBtn" class="button">新增模組</button>
+          <div id="modsList" class="mods-list"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
