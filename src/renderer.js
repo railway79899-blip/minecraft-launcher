@@ -1,14 +1,76 @@
+class NotificationSystem {
+  constructor(containerId = 'notificationContainer') {
+    this.container = document.getElementById(containerId);
+    this.notifications = [];
+  }
+
+  show(message, type = 'info', duration = 4000, title = '') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    const icons = {
+      success: '✓',
+      error: '✗',
+      info: 'ℹ',
+      warning: '⚠'
+    };
+
+    notification.innerHTML = `
+      <div class="notification-icon">${icons[type]}</div>
+      <div class="notification-content">
+        ${title ? `<div class="notification-title">${title}</div>` : ''}
+        <div class="notification-message">${message}</div>
+      </div>
+    `;
+
+    this.container.appendChild(notification);
+    this.notifications.push(notification);
+
+    if (duration > 0) {
+      setTimeout(() => this.close(notification), duration);
+    }
+
+    return notification;
+  }
+
+  close(notification) {
+    notification.classList.add('closing');
+    setTimeout(() => {
+      notification.remove();
+      this.notifications = this.notifications.filter(n => n !== notification);
+    }, 400);
+  }
+
+  success(message, title = '成功', duration = 3000) {
+    return this.show(message, 'success', duration, title);
+  }
+
+  error(message, title = '錯誤', duration = 4000) {
+    return this.show(message, 'error', duration, title);
+  }
+
+  info(message, title = '提示', duration = 3000) {
+    return this.show(message, 'info', duration, title);
+  }
+
+  warning(message, title = '警告', duration = 4000) {
+    return this.show(message, 'warning', duration, title);
+  }
+}
+
 class MinecraftLauncher {
   constructor() {
     this.downloads = new Map();
     this.mods = [];
-    this.currentType = 'java'; // 預設選擇 Java
+    this.currentType = 'java';
+    this.notifier = new NotificationSystem();
     this.init();
   }
 
   async init() {
     this.setupEventListeners();
     await this.loadVersions();
+    this.notifier.success('應用已加載', '就緒');
   }
 
   setupEventListeners() {
@@ -32,42 +94,40 @@ class MinecraftLauncher {
       btn.classList.toggle('active', btn.dataset.type === type);
     });
 
-    // 重新載入版本
+    this.notifier.info(`已切換到 ${type === 'java' ? 'Java' : 'Bedrock'} 版本`);
     this.loadVersions();
   }
 
   async loadVersions() {
     try {
-      // 載入已安裝版本
       const installed = await window.minecraft.getInstalledVersions(this.currentType);
       this.displayInstalledVersions(installed);
 
-      // 載入可用版本
       const available = await window.minecraft.getVersions(this.currentType);
       this.displayAvailableVersions(available);
     } catch (error) {
       console.error('載入版本失敗:', error);
-      this.showError('載入版本失敗');
+      this.notifier.error(error.message, '載入失敗');
     }
   }
 
   displayInstalledVersions(versions) {
     const container = document.getElementById('installedVersions');
     if (!versions || versions.length === 0) {
-      container.innerHTML = '<p class="empty">未安裝任何版本</p>';
+      container.innerHTML = '<p class="empty">📭 未安裝任何版本</p>';
       return;
     }
 
     container.innerHTML = versions.map(v => `
-      <div class="version-item">
+      <div class="version-item ${v.type}">
         <div class="version-info">
           <div class="version-name">${v.name}</div>
           <div class="version-meta">
-            <span>大小: ${this.formatFileSize(v.size)}</span>
-            <span> | 安裝時間: ${new Date(v.installedAt).toLocaleDateString('zh-TW')}</span>
+            <span>📊 ${this.formatFileSize(v.size)}</span>
+            <span> | 📅 ${new Date(v.installedAt).toLocaleDateString('zh-TW')}</span>
           </div>
         </div>
-        <button class="button" onclick="launcher.launchGame('${v.id}')">啟動</button>
+        <button class="button" onclick="launcher.launchGame('${v.id}')">🚀 啟動</button>
       </div>
     `).join('');
   }
@@ -75,30 +135,30 @@ class MinecraftLauncher {
   displayAvailableVersions(versions) {
     const container = document.getElementById('availableVersions');
     if (!versions || versions.length === 0) {
-      container.innerHTML = '<p class="empty">無可用版本</p>';
+      container.innerHTML = '<p class="empty">📭 無可用版本</p>';
       return;
     }
 
     container.innerHTML = versions.map(v => `
-      <div class="version-item">
+      <div class="version-item ${v.type}">
         <div class="version-info">
           <div class="version-name">${v.name}</div>
           <div class="version-meta">
-            大小: ${this.formatFileSize(v.size)} | 發布: ${v.releaseDate}
+            📊 ${this.formatFileSize(v.size)} | 📅 ${v.releaseDate}
           </div>
         </div>
-        <button class="button" onclick="launcher.downloadVersion('${v.id}')">下載</button>
+        <button class="button" onclick="launcher.downloadVersion('${v.id}')">⬇️ 下載</button>
       </div>
     `).join('');
   }
 
   async downloadVersion(versionId) {
     try {
+      this.notifier.info('開始下載...', '下載中');
       const result = await window.minecraft.downloadVersion(versionId, this.currentType);
-      this.showSuccess(`正在下載版本...`);
       this.trackDownload(result.downloadId, `${this.currentType.toUpperCase()}: ${versionId}`);
     } catch (error) {
-      this.showError(`下載失敗: ${error.message}`);
+      this.notifier.error(error.message, '下載失敗');
     }
   }
 
@@ -216,17 +276,26 @@ class MinecraftLauncher {
 
   async launchGame(versionId) {
     try {
+      this.notifier.info('遊戲啟動中，請稍候...', '啟動中');
       await window.minecraft.launchGame(versionId);
-      this.showSuccess('遊戲啟動中...');
+      this.notifier.success('遊戲已成功啟動！', '啟動成功');
     } catch (error) {
-      this.showError(`啟動失敗: ${error.message}`);
+      this.notifier.error(error.message, '啟動失敗');
     }
   }
 
   addMod() {
-    const url = document.getElementById('modUrl')?.value;
+    const url = document.getElementById('modUrl')?.value?.trim();
     if (!url) {
-      this.showError('請輸入模組 URL');
+      this.notifier.warning('請輸入有效的模組 URL', '輸入無效');
+      return;
+    }
+
+    // 驗證 URL
+    try {
+      new URL(url);
+    } catch (e) {
+      this.notifier.error('URL 格式不正確', '驗證失敗');
       return;
     }
 
@@ -238,23 +307,24 @@ class MinecraftLauncher {
 
     document.getElementById('modUrl').value = '';
     this.displayMods();
+    this.notifier.success('模組已新增到列表', '成功');
   }
 
   displayMods() {
     const container = document.getElementById('modsList');
     if (this.mods.length === 0) {
-      container.innerHTML = '<p class="empty">沒有新增模組</p>';
+      container.innerHTML = '<p class="empty">📭 沒有新增模組</p>';
       return;
     }
 
     container.innerHTML = this.mods.map(m => `
       <div class="mod-item">
         <div class="version-info">
-          <div class="version-name">模組</div>
+          <div class="version-name">📦 模組</div>
           <div class="version-meta">${m.url}</div>
-          <div class="version-meta">狀態: ${m.status}</div>
+          <div class="version-meta">狀態: <strong>${m.status}</strong></div>
         </div>
-        <button class="button" onclick="launcher.downloadMod('${m.id}')">下載</button>
+        <button class="button" onclick="launcher.downloadMod('${m.id}')">⬇️ 下載</button>
       </div>
     `).join('');
   }
@@ -264,12 +334,13 @@ class MinecraftLauncher {
     if (!mod) return;
 
     try {
+      this.notifier.info(`下載中: ${mod.url}`, '模組下載');
       const result = await window.minecraft.downloadMods([mod]);
       mod.status = '下載中';
       this.trackDownload(result.downloadId, `模組: ${mod.url}`);
       this.displayMods();
     } catch (error) {
-      this.showError(`下載模組失敗: ${error.message}`);
+      this.notifier.error(error.message, '模組下載失敗');
     }
   }
 
@@ -278,7 +349,7 @@ class MinecraftLauncher {
       id: downloadId,
       name: name,
       progress: 0,
-      status: '下載中'
+      status: '準備中...'
     });
     this.updateDownloadsList();
   }
@@ -286,21 +357,24 @@ class MinecraftLauncher {
   updateDownloadsList() {
     const container = document.getElementById('downloadsList');
     if (this.downloads.size === 0) {
-      container.innerHTML = '<p class="empty">沒有正在進行的下載</p>';
+      container.innerHTML = '<p class="empty">📭 沒有正在進行的下載</p>';
       return;
     }
 
-    container.innerHTML = Array.from(this.downloads.values()).map(d => `
-      <div class="download-item">
-        <div class="version-info">
-          <div class="version-name">${d.name}</div>
-          <div class="progress-bar">
-            <div class="progress-fill" style="width: ${d.progress}%"></div>
+    container.innerHTML = Array.from(this.downloads.values()).map(d => {
+      const statusEmoji = d.progress === 100 ? '✅' : '⏳';
+      return `
+        <div class="download-item">
+          <div class="version-info">
+            <div class="version-name">${statusEmoji} ${d.name}</div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${d.progress}%"></div>
+            </div>
+            <div class="progress-text">${d.progress}% - ${d.status}</div>
           </div>
-          <div class="progress-text">${d.progress}% - ${d.status}</div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   }
 
   formatFileSize(bytes) {
@@ -313,16 +387,6 @@ class MinecraftLauncher {
       unitIndex++;
     }
     return `${size.toFixed(2)} ${units[unitIndex]}`;
-  }
-
-  showSuccess(message) {
-    console.log('✓', message);
-    // 可以擴展為顯示通知
-  }
-
-  showError(message) {
-    console.error('✗', message);
-    // 可以擴展為顯示錯誤提示
   }
 }
 
