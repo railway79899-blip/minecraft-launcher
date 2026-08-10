@@ -7,7 +7,66 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="app-container">
+  <!-- 通知容器 -->
+  <div class="notification-container" id="notificationContainer"></div>
+
+  <div class="container">
+    <header class="header">
+      <h1>🎮 Minecraft 啟動器</h1>
+      <p class="subtitle">支持 Java 和 Bedrock 版本 | 無需管理員權限</p>
+    </header>
+
+    <main class="main">
+      <div class="section">
+        <h2>🎯 版本類型</h2>
+        <div class="version-type-selector">
+          <button class="type-button active" data-type="java">☕ Java 版本</button>
+          <button class="type-button" data-type="bedrock">🏘️ Bedrock 版本</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>📦 版本管理</h2>
+        <div class="version-section">
+          <div class="subsection">
+            <h3>✅ 已安裝版本</h3>
+            <div id="installedVersions" class="version-list">
+              <p class="loading">🔄 載入中...</p>
+            </div>
+          </div>
+          
+          <div class="subsection">
+            <h3>📥 可用版本</h3>
+            <div id="availableVersions" class="version-list">
+              <p class="loading">🔄 載入中...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>⬇️ 下載管理</h2>
+        <div class="download-section">
+          <div id="downloadsList" class="downloads-list">
+            <p class="empty">📭 沒有正在進行的下載</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>🔧 模組管理</h2>
+        <div class="mods-section">
+          <input type="text" id="modUrl" placeholder="輸入模組 URL...">
+          <button id="addModBtn" class="button">➕ 新增模組</button>
+        </div>
+        <div id="modsList" class="mods-list"></div>
+      </div>
+    </main>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
     <!-- 側邊欄 -->
     <aside class="sidebar">
       <div class="sidebar-header">
