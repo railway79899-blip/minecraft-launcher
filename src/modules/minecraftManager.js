@@ -111,8 +111,26 @@ export class MinecraftManager {
 
   async launchGame(versionId) {
     try {
-      const versionPath = this.fileManager.getVersionPath(versionId);
-      const jarFile = path.join(versionPath, `minecraft-${versionId}.jar`);
+      const version = this.versions.get(versionId);
+      if (!version) {
+        throw new Error('版本不存在');
+      }
+
+      if (version.type === 'java') {
+        return await this.launchJavaEdition(versionId);
+      } else if (version.type === 'bedrock') {
+        return await this.launchBedrockEdition(versionId);
+      }
+    } catch (error) {
+      console.error('啟動遊戲失敗:', error);
+      throw error;
+    }
+  }
+
+  async launchJavaEdition(versionId) {
+    try {
+      const versionPath = this.fileManager.getVersionPath(`java/${versionId.replace('java-', '')}`);
+      const jarFile = path.join(versionPath, `minecraft.jar`);
 
       // 檢查 Java 是否可用
       const javaAvailable = await this.checkJavaAvailable();
@@ -133,10 +151,43 @@ export class MinecraftManager {
         });
 
         process.unref();
-        resolve({ status: 'launched', pid: process.pid });
+        resolve({ status: 'launched', pid: process.pid, type: 'java' });
       });
     } catch (error) {
-      console.error('啟動遊戲失敗:', error);
+      throw error;
+    }
+  }
+
+  async launchBedrockEdition(versionId) {
+    try {
+      const versionPath = this.fileManager.getVersionPath(`bedrock/${versionId.replace('bedrock-', '')}`);
+      
+      // Bedrock 版本的啟動邏輯（根據操作系統不同）
+      let command, args = [];
+      
+      if (process.platform === 'win32') {
+        // Windows: 啟動 Bedrock Launcher
+        command = 'explorer';
+        args = [path.join(versionPath, 'minecraft-bedrock.appx')];
+      } else if (process.platform === 'darwin') {
+        // macOS: 啟動應用
+        command = 'open';
+        args = ['-a', 'Minecraft', versionPath];
+      } else {
+        // Linux: 可能需要其他處理
+        throw new Error('Linux 不支持 Bedrock 版本');
+      }
+
+      return new Promise((resolve, reject) => {
+        const process = spawn(command, args, {
+          detached: true,
+          stdio: 'ignore'
+        });
+
+        process.unref();
+        resolve({ status: 'launched', pid: process.pid, type: 'bedrock' });
+      });
+    } catch (error) {
       throw error;
     }
   }
