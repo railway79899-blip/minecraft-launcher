@@ -1,15 +1,31 @@
 # Minecraft 啟動器
 
-一個無需管理員權限即可使用的 Minecraft 桌面啟動器。
+一個無需管理員權限即可使用的 Minecraft 桌面啟動器，支持 Java 和 Bedrock 版本。
 
 ## 功能
 
 ✨ **核心功能**
-- 🎮 Minecraft Java 版本下載與管理
+- 🎮 支持 **Java 版本** 下載與管理
+- 🏘️ 支持 **Bedrock 版本** 下載與管理
 - 📦 Mods 和資源包管理
 - 💾 遊戲存檔管理
-- 🚀 一鍵啟動遊戲
+- 🚀 一鍵啟動遊戲（Java 和 Bedrock）
 - 📥 無管理員權限下載支持
+- 🔄 版本類型快速切換
+
+## 版本差異
+
+### Java 版本
+- 🔧 支持 Mods 和模組加載器（Forge、Fabric 等）
+- 📝 自定義伺服器支持
+- 💻 跨平台（Windows/macOS/Linux）
+- ⚙️ 可自定義 Java 參數
+
+### Bedrock 版本
+- 🎯 官方版本，穩定性高
+- 📱 支持跨平台多人遊戲
+- 🛍️ Marketplace 內容整合
+- 🪟 Windows、macOS 原生支持
 
 ## 系統要求
 
@@ -46,29 +62,48 @@ minecraft-launcher/
 │   ├── renderer.js        # 渲染進程邏輯
 │   ├── styles.css         # 樣式表
 │   └── modules/
-│       ├── downloader.js  # 下載管理
+│       ├── downloader.js  # 下載管理（支持兩個版本）
 │       ├── fileManager.js # 文件管理
 │       └── minecraftManager.js  # Minecraft 管理
 └── minecraft-data/        # 遊戲數據目錄
-    ├── versions/          # 遊戲版本
-    ├── mods/              # Mods
+    ├── java/              # Java 版本
+    │   ├── 1.20.1/
+    │   ├── 1.19.2/
+    │   └── ...
+    ├── bedrock/           # Bedrock 版本
+    │   ├── 1.20.1/
+    │   ├── 1.19.0/
+    │   └── ...
+    ├── mods/              # Mods（Java 專用）
     ├── resourcepacks/     # 資源包
     └── saves/             # 遊戲存檔
 ```
 
 ## 使用說明
 
+### 選擇版本類型
+1. 點擊「☕ Java 版本」或「🏘️ Bedrock 版本」按鈕
+2. 介面會自動更新顯示對應版本
+
 ### 下載版本
 1. 在「可用版本」區域找到要下載的版本
 2. 點擊「下載」按鈕
-3. 等待下載完成
+3. 等待下載完成（下載進度顯示在下方）
 
 ### 啟動遊戲
+
+**Java 版本**
 1. 在「已安裝版本」區域找到版本
 2. 點擊「啟動」按鈕
 3. 遊戲將在新窗口中啟動
+4. 確保已安裝 Java 8 或更新版本
 
-### 管理 Mods
+**Bedrock 版本**
+1. 在「已安裝版本」區域找到版本
+2. 點擊「啟動」按鈕
+3. 遊戲將使用官方 Minecraft 啟動器啟動
+
+### 管理 Mods（Java 版本專用）
 1. 在「模組管理」區域輸入 Mod URL
 2. 點擊「新增模組」
 3. 點擊「下載」開始下載

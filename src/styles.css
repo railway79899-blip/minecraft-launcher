@@ -52,6 +52,37 @@ body {
   font-size: 1.5em;
 }
 
+.version-type-selector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.type-button {
+  flex: 1;
+  padding: 12px 20px;
+  background: #e0e0e0;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.type-button:hover {
+  background: #d0d0d0;
+  border-color: #667eea;
+}
+
+.type-button.active {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border-color: #667eea;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
 .version-section {
   display: grid;
   grid-template-columns: 1fr 1fr;

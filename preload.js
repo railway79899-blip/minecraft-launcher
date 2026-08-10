@@ -1,10 +1,10 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
 contextBridge.exposeInMainWorld('minecraft', {
-  getVersions: () => ipcRenderer.invoke('get-versions'),
-  downloadVersion: (versionId) => ipcRenderer.invoke('download-version', versionId),
+  getVersions: (type = 'java') => ipcRenderer.invoke('get-versions', type),
+  getInstalledVersions: (type) => ipcRenderer.invoke('get-installed-versions', type),
+  downloadVersion: (versionId, type = 'java') => ipcRenderer.invoke('download-version', versionId, type),
   downloadMods: (modsData) => ipcRenderer.invoke('download-mods', modsData),
-  getInstalledVersions: () => ipcRenderer.invoke('get-installed-versions'),
   launchGame: (versionId) => ipcRenderer.invoke('launch-game', versionId),
   getDownloadProgress: (downloadId) => ipcRenderer.invoke('get-download-progress', downloadId),
   onDownloadProgress: (callback) => {

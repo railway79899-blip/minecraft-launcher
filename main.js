@@ -51,13 +51,20 @@ app.on('activate', () => {
 });
 
 // IPC 事件處理
-ipcMain.handle('get-versions', async () => {
-  return await minecraftManager.getAvailableVersions();
+ipcMain.handle('get-versions', async (event, type = 'java') => {
+  return await minecraftManager.getAvailableVersions(type);
 });
 
-ipcMain.handle('download-version', async (event, versionId) => {
+ipcMain.handle('get-installed-versions', async (event, type) => {
+  if (type) {
+    return await minecraftManager.getInstalledVersionsByType(type);
+  }
+  return await minecraftManager.getInstalledVersions();
+});
+
+ipcMain.handle('download-version', async (event, versionId, type = 'java') => {
   try {
-    return await downloadManager.downloadMinecraftVersion(versionId);
+    return await downloadManager.downloadMinecraftVersion(versionId, type);
   } catch (error) {
     throw new Error(`下載失敗: ${error.message}`);
   }
@@ -69,10 +76,6 @@ ipcMain.handle('download-mods', async (event, modsData) => {
   } catch (error) {
     throw new Error(`下載模組失敗: ${error.message}`);
   }
-});
-
-ipcMain.handle('get-installed-versions', async () => {
-  return await minecraftManager.getInstalledVersions();
 });
 
 ipcMain.handle('launch-game', async (event, versionId) => {

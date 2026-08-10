@@ -22,13 +22,25 @@ export class DownloadManager {
     }
   }
 
-  async downloadMinecraftVersion(versionId) {
+  async downloadMinecraftVersion(versionId, type = 'java') {
     const downloadId = uuidv4();
     
     try {
-      // 這裡應該從官方 Minecraft Launcher 獲取下載 URL
-      // 目前使用示例 URL
-      const urls = this.getVersionDownloadUrls(versionId);
+      if (type === 'java') {
+        return await this.downloadJavaVersion(downloadId, versionId);
+      } else if (type === 'bedrock') {
+        return await this.downloadBedrockVersion(downloadId, versionId);
+      }
+      throw new Error('未知的版本類型');
+    } catch (error) {
+      this.removeDownload(downloadId);
+      throw error;
+    }
+  }
+
+  async downloadJavaVersion(downloadId, versionId) {
+    try {
+      const urls = this.getJavaVersionDownloadUrls(versionId);
       
       for (const urlInfo of urls) {
         await this.downloadFile(downloadId, urlInfo.url, urlInfo.name);
@@ -37,12 +49,53 @@ export class DownloadManager {
       return {
         downloadId,
         status: 'downloading',
-        versionId
+        versionId,
+        type: 'java'
       };
     } catch (error) {
-      this.removeDownload(downloadId);
       throw error;
     }
+  }
+
+  async downloadBedrockVersion(downloadId, versionId) {
+    try {
+      const urls = this.getBedrockVersionDownloadUrls(versionId);
+      
+      for (const urlInfo of urls) {
+        await this.downloadFile(downloadId, urlInfo.url, urlInfo.name);
+      }
+
+      return {
+        downloadId,
+        status: 'downloading',
+        versionId,
+        type: 'bedrock'
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  getJavaVersionDownloadUrls(versionId) {
+    // Java 版本下載 URL（示例）
+    const version = versionId.replace('java-', '');
+    return [
+      {
+        url: `https://launcher.mojang.com/v1/objects/java-${version}.jar`,
+        name: `minecraft-${version}.jar`
+      }
+    ];
+  }
+
+  getBedrockVersionDownloadUrls(versionId) {
+    // Bedrock 版本下載 URL（示例）
+    const version = versionId.replace('bedrock-', '');
+    return [
+      {
+        url: `https://launcher.mojang.com/v1/objects/bedrock-${version}.zip`,
+        name: `minecraft-bedrock-${version}.zip`
+      }
+    ];
   }
 
   async downloadMods(modsData) {
@@ -91,16 +144,6 @@ export class DownloadManager {
       console.error(`下載 ${filename} 失敗:`, error);
       throw error;
     }
-  }
-
-  getVersionDownloadUrls(versionId) {
-    // 示例 URL（實際應從官方獲取）
-    return [
-      {
-        url: `https://launcher.mojang.com/v1/objects/example-${versionId}.jar`,
-        name: `minecraft-${versionId}.jar`
-      }
-    ];
   }
 
   updateProgress(downloadId, progress) {
